@@ -36,7 +36,7 @@ def send_welcome(message):
 def handle_callback(call):
     if call.data == "pay":
         bot.edit_message_text(
-            "💳 Реквизиты для оплаты:\n\nКарта: XXXX XXXX XXXX XXXX\nСумма: 1500 ₽\nКомментарий: «Подписка»\n\nПосле оплаты нажми «📨 Я оплатил» и отправь скриншот.",
+            "💳 Реквизиты для оплаты:\n\nКарта: 5469 1600 1745 0870\nСумма: 1500 ₽\n\nПосле оплаты нажми «📨 Я оплатил» и отправь скриншот.",
             call.message.chat.id,
             call.message.message_id,
             reply_markup=confirm_keyboard()
@@ -45,7 +45,7 @@ def handle_callback(call):
 
     elif call.data == "confirm":
         bot.edit_message_text(
-            "📸 Отправь, пожалуйста, скриншот перевода.\nАдминистратор проверит его и свяжется с тобой.",
+            "📸 Отправь, пожалуйста, скриншот перевода.\nПроверим и предоставим доступ.",
             call.message.chat.id,
             call.message.message_id
         )
@@ -71,7 +71,7 @@ def handle_screenshot(message):
     bot.send_photo(ADMIN_CHAT_ID, message.photo[-1].file_id, caption="🧾 Скриншот оплаты")
 
     # Ответ пользователю
-    bot.reply_to(message, "✅ Спасибо! Твой платёж получен.\nАдминистратор свяжется с тобой в ближайшее время.")
+    bot.reply_to(message, "✅ Спасибо! Твой платёж получен.\nДоступ будет предоставлен в течение 5 минут.")
 
 # ===== ЗАПУСК БОТА =====
 def run_bot():
