@@ -3,6 +3,7 @@ import telebot
 from flask import Flask
 from threading import Thread
 
+# ===== КОНФИГУРАЦИЯ =====
 TOKEN = os.environ.get("TELEGRAM_TOKEN")
 if not TOKEN:
     raise ValueError("❌ Нет токена! Добавь TELEGRAM_TOKEN в переменные окружения Render.")
@@ -11,20 +12,75 @@ ADMIN_CHAT_ID = 8842769815  # ЗАМЕНИ НА СВОЙ TELEGRAM ID (число
 
 bot = telebot.TeleBot(TOKEN)
 
+# ===== КЛАВИАТУРЫ =====
+def main_keyboard():
+    keyboard = telebot.types.InlineKeyboardMarkup()
+    keyboard.add(telebot.types.InlineKeyboardButton("💳 Оплатить", callback_data="pay"))
+    return keyboard
+
+def confirm_keyboard():
+    keyboard = telebot.types.InlineKeyboardMarkup()
+    keyboard.add(telebot.types.InlineKeyboardButton("📨 Я оплатил", callback_data="confirm"))
+    return keyboard
+
+# ===== ОБРАБОТЧИКИ =====
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    bot.send_message(message.chat.id, "✅ Бот работает!")
+    bot.send_message(
+        message.chat.id,
+        "📌 Добро пожаловать!\n\nДоступ в закрытый канал — 1500 ₽.\nНажми «💳 Оплатить», чтобы получить реквизиты.",
+        reply_markup=main_keyboard()
+    )
 
-@bot.message_handler(func=lambda message: True)
-def echo_all(message):
-    bot.reply_to(message, "Получил твоё сообщение!")
+@bot.callback_query_handler(func=lambda call: True)
+def handle_callback(call):
+    if call.data == "pay":
+        bot.edit_message_text(
+            "💳 Реквизиты для оплаты:\n\nКарта: XXXX XXXX XXXX XXXX\nСумма: 1500 ₽\nКомментарий: «Подписка»\n\nПосле оплаты нажми «📨 Я оплатил» и отправь скриншот.",
+            call.message.chat.id,
+            call.message.message_id,
+            reply_markup=confirm_keyboard()
+        )
+        bot.answer_callback_query(call.id)
 
+    elif call.data == "confirm":
+        bot.edit_message_text(
+            "📸 Отправь, пожалуйста, скриншот перевода.\nАдминистратор проверит его и свяжется с тобой.",
+            call.message.chat.id,
+            call.message.message_id
+        )
+        bot.answer_callback_query(call.id)
+
+@bot.message_handler(content_types=['photo'])
+def handle_screenshot(message):
+    # Проверяем, что пользователь нажал «Я оплатил» (просто проверяем, что фото отправлено)
+    user_id = message.from_user.id
+    user_name = message.from_user.full_name
+    user_username = message.from_user.username or "Нет username"
+
+    # Отправляем уведомление администратору
+    admin_message = (
+        f"📩 *Новая заявка!*\n"
+        f"━━━━━━━━━━━━━━━\n"
+        f"👤 {user_name}\n"
+        f"🆔 `{user_id}`\n"
+        f"💬 @{user_username}\n"
+    )
+
+    bot.send_message(ADMIN_CHAT_ID, admin_message, parse_mode="Markdown")
+    bot.send_photo(ADMIN_CHAT_ID, message.photo[-1].file_id, caption="🧾 Скриншот оплаты")
+
+    # Ответ пользователю
+    bot.reply_to(message, "✅ Спасибо! Твой платёж получен.\nАдминистратор свяжется с тобой в ближайшее время.")
+
+# ===== ЗАПУСК БОТА =====
 def run_bot():
     print("🤖 Удаляю старый вебхук...")
     bot.remove_webhook()
     print("🤖 Бот запущен!")
     bot.infinity_polling()
 
+# ===== ВЕБ-СЕРВЕР ДЛЯ RENDER =====
 flask_app = Flask(__name__)
 
 @flask_app.route('/')
@@ -35,6 +91,7 @@ def home():
 def health():
     return "OK"
 
+# ===== ГЛАВНЫЙ ЗАПУСК =====
 if __name__ == "__main__":
     Thread(target=run_bot).start()
     port = int(os.environ.get("PORT", 10000))
