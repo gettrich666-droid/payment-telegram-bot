@@ -9,7 +9,7 @@ TOKEN = os.environ.get("TELEGRAM_TOKEN")
 if not TOKEN:
     raise ValueError("❌ Нет токена! Добавь TELEGRAM_TOKEN в переменные окружения Render.")
 
-ADMIN_CHAT_ID = 123456789  # Замени на свой Telegram ID (число, без кавычек)
+ADMIN_CHAT_ID = 8842769815  # Замени на свой Telegram ID (число, без кавычек)
 
 START_MESSAGE = """
 📌 Добро пожаловать!
