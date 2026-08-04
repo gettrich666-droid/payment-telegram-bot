@@ -41,7 +41,7 @@ def health():
 if __name__ == "__main__":
     Thread(target=run_bot).start()
     port = int(os.environ.get("PORT", 10000))
-    flask_app.run(host="0.0.0.0", port=port)потоке
+    flask_app.run(host="0.0.0.0", port=port)
     Thread(target=run_bot).start()
     # Запускаем веб-сервер для Render
     port = int(os.environ.get("PORT", 10000))
