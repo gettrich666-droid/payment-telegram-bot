@@ -2,6 +2,7 @@ import os
 import telebot
 from flask import Flask
 from threading import Thread
+from telebot.types import ChatJoinRequest
 
 # ===== КОНФИГУРАЦИЯ =====
 TOKEN = os.environ.get("TELEGRAM_TOKEN")
@@ -23,7 +24,8 @@ def confirm_keyboard():
     keyboard.add(telebot.types.InlineKeyboardButton("📨 Я оплатил", callback_data="confirm"))
     return keyboard
 
-# ===== ОБРАБОТЧИКИ =====
+# ===== ОБРАБОТЧИКИ БОТА =====
+
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     bot.send_message(
@@ -45,7 +47,7 @@ def handle_callback(call):
 
     elif call.data == "confirm":
         bot.edit_message_text(
-            "📸 Отправь, пожалуйста, скриншот перевода.\nПроверим и предоставим доступ.",
+            "📸 Отправь, пожалуйста, скриншот перевода.\nМы переповерим все и предоставим доступ.",
             call.message.chat.id,
             call.message.message_id
         )
@@ -53,12 +55,10 @@ def handle_callback(call):
 
 @bot.message_handler(content_types=['photo'])
 def handle_screenshot(message):
-    # Проверяем, что пользователь нажал «Я оплатил» (просто проверяем, что фото отправлено)
     user_id = message.from_user.id
     user_name = message.from_user.full_name
     user_username = message.from_user.username or "Нет username"
 
-    # Отправляем уведомление администратору
     admin_message = (
         f"📩 *Новая заявка!*\n"
         f"━━━━━━━━━━━━━━━\n"
@@ -70,8 +70,18 @@ def handle_screenshot(message):
     bot.send_message(ADMIN_CHAT_ID, admin_message, parse_mode="Markdown")
     bot.send_photo(ADMIN_CHAT_ID, message.photo[-1].file_id, caption="🧾 Скриншот оплаты")
 
-    # Ответ пользователю
     bot.reply_to(message, "✅ Спасибо! Твой платёж получен.\nДоступ будет предоставлен в течение 5 минут.")
+
+# ===== НОВЫЙ ОБРАБОТЧИК ЗАЯВОК НА ВСТУПЛЕНИЕ =====
+@bot.chat_join_request_handler()
+def handle_join_request(message: ChatJoinRequest):
+    bot.send_message(
+        message.from_user.id,
+        "👋 Ты оставил заявку в закрытый канал.\n\n"
+        "💰 Доступ стоит 1500 ₽.\n"
+        "Для оплаты нажми /start в этом боте или открой меню.\n\n"
+        "После оплаты я добавлю тебя в канал."
+    )
 
 # ===== ЗАПУСК БОТА =====
 def run_bot():
