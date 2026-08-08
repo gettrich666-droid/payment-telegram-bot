@@ -30,7 +30,7 @@ def confirm_keyboard():
 def send_welcome(message):
     bot.send_message(
         message.chat.id,
-        "📌 Добро пожаловать!\n\nДоступ в закрытый канал — 1500 ₽.\nНажми «💳 Оплатить», чтобы получить реквизиты.",
+        "📌 Добро пожаловать!\n\nДоступ в закрытый канал — 700 ₽ (для первых 20).\nНажми «💳 Оплатить», чтобы получить реквизиты.",
         reply_markup=main_keyboard()
     )
 
@@ -38,7 +38,7 @@ def send_welcome(message):
 def handle_callback(call):
     if call.data == "pay":
         bot.edit_message_text(
-            "💳 Реквизиты для оплаты:\n\nКарта: 5469 1600 1745 0870\nСумма: 1500 ₽\n\nПосле оплаты нажми «📨 Я оплатил» и отправь скриншот.",
+            "💳 Реквизиты для оплаты:\n\nКарта: 5469 1600 1745 0870\nСумма: 700 ₽ (для первых 20)\n\nПосле оплаты нажми «📨 Я оплатил» и отправь скриншот.",
             call.message.chat.id,
             call.message.message_id,
             reply_markup=confirm_keyboard()
@@ -78,8 +78,8 @@ def handle_join_request(message: ChatJoinRequest):
     bot.send_message(
         message.from_user.id,
         "👋 Ты оставил заявку в закрытый канал.\n\n"
-        "💰 Доступ стоит 1500 ₽.\n"
-        "Для оплаты нажми /start в этом боте или открой меню.\n\n"
+        "💰 Доступ стоит 700 ₽ (для первых 20).\n"
+        "Для оплаты нажми /start в этом боте.\n\n"
         "После оплаты я добавлю тебя в канал."
     )
 
