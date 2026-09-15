@@ -78,7 +78,7 @@ def handle_join_request(message: ChatJoinRequest):
     bot.send_message(
         message.from_user.id,
         "👋 Ты оставил заявку в закрытый канал.\n\n"
-        "💰 Доступ стоит 700 ₽ (для первых 20).\n"
+        "💰 Доступ стоит 1000 ₽.\n"
         "Для оплаты нажми /start в этом боте.\n\n"
         "После оплаты я добавлю тебя в канал."
     )
