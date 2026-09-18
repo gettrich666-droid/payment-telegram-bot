@@ -30,7 +30,7 @@ def confirm_keyboard():
 def send_welcome(message):
     bot.send_message(
         message.chat.id,
-        "📌 Добро пожаловать!\n\nДоступ в приватный канал — 1000 ₽.\nНажми «💳 Оплатить», чтобы получить реквизиты.",
+        "📌 Добро пожаловать!\n\nДоступ в закрытый канал — 1000 ₽.\nНажми «💳 Оплатить», чтобы получить реквизиты.",
         reply_markup=main_keyboard()
     )
 
